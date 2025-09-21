@@ -1,0 +1,116 @@
+﻿@model SongDetailsViewModel
+@{
+    ViewData["Title"] = Model.Song.Title;
+    var s = Model.Song;
+}
+<div class="container container-narrow py-4">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <img class="img-fluid rounded shadow-sm"
+                 src="@(s.CoverImageUrl ?? s.Album?.CoverImageUrl ?? "/images/cover-default.jpg")"
+                 alt="@s.Title" />
+            <div class="mt-3">
+                <audio id="song-audio" data-id="@s.Id" controls preload="metadata" class="w-100">
+                    <source src="@s.AudioUrl" type="audio/mpeg" />
+                    Trình duyệt không hỗ trợ audio.
+                </audio>
+                <script>
+                    (function(){
+                      const audio = document.getElementById('song-audio');
+                      if (!audio) return;
+                      let sent = false;
+
+                      async function markPlayedOnce(){
+                        if (sent) return;
+                        sent = true;
+                        const id = audio.dataset.id;
+                        try {
+                          await fetch(`/api/tracks/${id}/played`, { method: 'POST' });
+                        } catch {}
+                      }
+
+                      audio.addEventListener('play', markPlayedOnce);
+
+                      audio.addEventListener('playing', markPlayedOnce);
+                    })();
+                </script>
+            </div>
+            <div class="mt-3 small text-muted">
+                @if (s.Duration.HasValue)
+                {
+                    <span><i class="bi bi-clock"></i> @($"{(int)s.Duration.Value.TotalMinutes:D2}:{s.Duration.Value.Seconds:D2}")</span>
+                }
+                <span class="ms-3"><i class="bi bi-headphones"></i> @s.PlayCount lượt nghe</span>
+            </div>
+            <div class="mt-3">
+                <a class="btn btn-outline-primary"
+                   asp-controller="Playlists" asp-action="Add" asp-route-songId="@s.Id">
+                    <i class="bi bi-plus-lg"></i> Thêm vào playlist
+                </a>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <h3 class="mb-1">@s.Title</h3>
+            <div class="text-muted mb-3">
+                <span>Nghệ sĩ: <a asp-controller="Artists" asp-action="Details" asp-route-id="@s.ArtistId">@s.Artist?.Name</a></span>
+                @if (s.Album != null)
+                {
+                    <span class="ms-3">Album: <a asp-controller="Albums" asp-action="Details" asp-route-id="@s.AlbumId">@s.Album.Title</a></span>
+                }
+                @if (s.Genre != null)
+                {
+                    <span class="ms-3">Thể loại: <a asp-controller="Genres" asp-action="Details" asp-route-id="@s.GenreId">@s.Genre.Name</a></span>
+                }
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(s.Lyrics))
+            {
+                <h5 class="mt-3">Lời</h5>
+                <pre class="lyrics-box">@s.Lyrics</pre>
+            }
+            else
+            {
+                <div class="alert alert-info">Chưa có lyrics cho bài này.</div>
+            }
+        </div>
+    </div>
+
+    <hr class="my-4" />
+
+    <h5 class="mb-3">Bài hát liên quan</h5>
+    @if (Model.Related.Count == 0)
+    {
+        <div class="alert alert-light border">Chưa có gợi ý liên quan.</div>
+    }
+    else
+    {
+        <div class="row g-3">
+            @foreach (var item in Model.Related)
+            {
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="card song-card h-100 shadow-sm">
+                        <a asp-controller="Songs" asp-action="Details" asp-route-id="@item.Id">
+                            <img class="card-img-top" src="@(item.CoverImageUrl ?? item.Album?.CoverImageUrl ?? "/images/cover-default.jpg")" alt="cover" />
+                        </a>
+                        <div class="card-body py-2">
+                            <div class="song-title fw-semibold">@item.Title</div>
+                            <div class="text-muted small">@item.Artist?.Name</div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<style>
+    .lyrics-box {
+        max-height: 27em;
+        overflow-y: auto;
+        white-space: pre-wrap;
+        background: #f8f9fa;
+        padding: 12px;
+        border-radius: 8px;
+    }
+</style>

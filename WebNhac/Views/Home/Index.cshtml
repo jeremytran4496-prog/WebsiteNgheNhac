@@ -1,0 +1,49 @@
+﻿@model HomeViewModel
+@{
+    ViewData["Title"] = "Trang chủ";
+}
+<div class="container container-narrow py-4">
+
+    <div class="p-4 mb-4 bg-primary-subtle border rounded-3">
+        <h2 class="mb-1"><i class="bi bi-music-note-list"></i> Nghe gì hôm nay</h2>
+        <p class="mb-0">Nhạc mới, bài hot và playlist gợi ý.</p>
+    </div>
+
+    <h5 class="mb-3">Mới cập nhật</h5>
+    <div class="row g-3 mb-4">
+        @foreach (var s in Model.NewSongs)
+        {
+            <div class="col-6 col-md-4 col-lg-3">
+                @await Html.PartialAsync("_SongCard", s)
+            </div>
+        }
+    </div>
+
+    <h5 class="mb-3">Top nghe nhiều</h5>
+    <div class="row g-3 mb-4">
+        @foreach (var s in Model.TopSongs)
+        {
+            <div class="col-6 col-md-4 col-lg-3">
+                @await Html.PartialAsync("_SongCard", s)
+            </div>
+        }
+    </div>
+
+    <h5 class="mb-3">Danh sách phát</h5>
+    <div class="row g-3">
+        @foreach (var p in Model.Playlists)
+        {
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h6 class="card-title mb-1">@p.Name</h6>
+                        <p class="text-muted small mb-3">@p.Items.Count bài</p>
+                        <a class="btn btn-primary" asp-controller="Player" asp-action="Index" asp-route-playlistId="@p.Id">
+                            <i class="bi bi-play-fill"></i> Nghe ngay
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

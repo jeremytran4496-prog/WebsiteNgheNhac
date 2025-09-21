@@ -1,0 +1,63 @@
+﻿@model PlayerFlatViewModel
+@{
+    ViewData["Title"] = Model.Title;
+    var tracks = Model.Tracks;
+}
+<div class="container container-narrow py-4">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h4 class="mb-0">@Model.Title</h4>
+        <span class="text-muted">@tracks.Count bản nhạc</span>
+    </div>
+
+    @if (tracks.Count == 0)
+    {
+        <div class="alert alert-light border">Chưa có bài hát nào.</div>
+    }
+    else
+    {
+        <audio id="audio" controls preload="metadata" class="w-100 mb-3">
+            <source src="@tracks.First().AudioUrl" type="audio/mpeg" />
+            Trình duyệt không hỗ trợ audio.
+        </audio>
+
+        <ol class="list-group" id="tracklist">
+            @for (int i = 0; i < tracks.Count; i++)
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-center"
+                    data-src="@tracks[i].AudioUrl" data-id="@tracks[i].Id">
+                    <span><b>@(i + 1).</b> @tracks[i].Title <span class="text-muted">— @tracks[i].Artist?.Name</span></span>
+                    <i class="bi bi-play-fill"></i>
+                </li>
+            }
+        </ol>
+    }
+</div>
+
+<script>
+    (function(){
+      const audio = document.getElementById('audio');
+      const items = Array.from(document.querySelectorAll('#tracklist li'));
+      if (!audio || items.length === 0) return;
+      let idx = 0, playedOnce = new Set();
+
+      async function markPlayed(id){
+        if (playedOnce.has(id)) return;
+        playedOnce.add(id);
+        try { await fetch(`/api/tracks/${id}/played`, { method: 'POST' }); } catch {}
+      }
+
+      function play(i){
+        idx = i;
+        const li = items[i];
+        audio.src = li.dataset.src;
+        audio.play();
+        items.forEach(x=>x.classList.remove('active'));
+        li.classList.add('active');
+        markPlayed(li.dataset.id);
+      }
+
+      items.forEach((li,i)=> li.onclick = ()=> play(i));
+      audio.addEventListener('ended', ()=> { if (idx < items.length - 1) play(idx + 1); });
+      play(0);
+    })();
+</script>

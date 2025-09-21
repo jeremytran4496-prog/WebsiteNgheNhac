@@ -1,0 +1,10 @@
+﻿@model Song
+<div class="card song-card shadow-sm h-100">
+    <a asp-controller="Songs" asp-action="Details" asp-route-id="@Model.Id">
+        <img class="card-img-top" src="@(Model.CoverImageUrl ?? Model.Album?.CoverImageUrl ?? "/images/cover-default.png")" alt="cover">
+    </a>
+    <div class="card-body py-2">
+        <div class="song-title fw-semibold">@Model.Title</div>
+        <div class="text-muted small">@Model.Artist?.Name</div>
+    </div>
+</div>

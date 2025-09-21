@@ -1,0 +1,71 @@
+﻿@model Song
+@{
+    ViewData["Title"] = "Thêm bài hát";
+}
+<div class="container container-narrow py-4">
+    <h4>Thêm bài hát</h4>
+    <hr />
+    <form asp-action="Create" enctype="multipart/form-data">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="Title" class="form-label"></label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-3">
+                <label asp-for="ArtistId" class="form-label">Nghệ sĩ</label>
+                <select asp-for="ArtistId" class="form-select" asp-items="ViewBag.ArtistId">
+                    <option value="">-- Chọn nghệ sĩ --</option>
+                </select>
+                <span asp-validation-for="Artist" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-3">
+                <label asp-for="AlbumId" class="form-label">Album</label>
+                <select asp-for="AlbumId" class="form-select" asp-items="ViewBag.AlbumId">
+                    <option value="">-- Không --</option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label asp-for="GenreId" class="form-label">Thể loại</label>
+                <select asp-for="GenreId" class="form-select" asp-items="ViewBag.GenreId">
+                    <option value="">-- Không --</option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">File âm thanh (.mp3/.m4a/.wav)</label>
+                <input type="file" name="audioFile" class="form-control" accept=".mp3,.m4a,.wav" />
+                <span asp-validation-for="AudioUrl" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Ảnh bìa (tuỳ chọn)</label>
+                <input type="file" name="coverFile" class="form-control" accept=".jpg,.jpeg,.png,.webp" />
+                <span asp-validation-for="CoverImageUrl" class="text-danger"></span>
+            </div>
+
+            <div class="col-12">
+                <label class="form-label">Lyrics (tuỳ chọn)</label>
+                <textarea asp-for="Lyrics" class="form-control" rows="6" placeholder="Dán lời bài hát vào đây"></textarea>
+                <span asp-validation-for="Lyrics" class="text-danger"></span>
+            </div>
+
+        </div>
+
+        <div class="mt-3">
+            <button type="submit" class="btn btn-primary">Lưu</button>
+            <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
